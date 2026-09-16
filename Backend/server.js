@@ -9,6 +9,7 @@ const inventoryRoutes = require('./src/routes/inventoryRoutes');
 const customerRoutes = require('./src/routes/customerRoutes');
 const enquiryRoutes = require('./src/routes/enquiryRoutes');
 const quotationRoutes = require('./src/routes/quotationRoutes');
+const salesOrderRoutes = require('./src/routes/salesOrderRoutes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/quotations', quotationRoutes);
+app.use('/api/sales-orders', salesOrderRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
