@@ -4,6 +4,8 @@ const cors = require('cors');
 const { errorHandler } = require('./src/middleware/errorHandler');
 
 const authRoutes = require('./src/routes/authRoutes');
+const productRoutes = require('./src/routes/productRoutes');
+const inventoryRoutes = require('./src/routes/inventoryRoutes');
 
 const app = express();
 
@@ -17,6 +19,8 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
