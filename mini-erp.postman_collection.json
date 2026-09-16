@@ -1,0 +1,296 @@
+{
+  "info": {
+    "name": "Mini-ERP PERN API Collection",
+    "description": "Complete REST API collection for Mini-ERP full-stack technical case study covering Customer Enquiry -> Quotation -> Accepted Quotation -> Sales Order -> Inventory Reservation -> Dispatch.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "salesToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login - Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@erp.com\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login - Sales",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sales@erp.com\",\n  \"password\": \"Sales@123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Get Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Get Customers",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/customers"
+          }
+        },
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"Kirloskar Heavy Industries\",\n  \"contact_person\": \"Sanjay Patil\",\n  \"mobile\": \"+91 98220 12345\",\n  \"email\": \"spatil@kirloskarhi.com\",\n  \"city\": \"Kolhapur\"\n}"
+            },
+            "url": "{{baseUrl}}/customers"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products & Inventory",
+      "item": [
+        {
+          "name": "Get Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Create Product (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_code\": \"FLG-VLV-07\",\n  \"product_name\": \"Flanged Ball Valve 2 Inch\",\n  \"category\": \"Valves\",\n  \"unit\": \"Pcs\",\n  \"base_price\": 3650.00,\n  \"initial_stock\": 45\n}"
+            },
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Get Inventory Availability",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/inventory"
+          }
+        },
+        {
+          "name": "Update Physical Inventory (Admin Only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"physical_quantity\": 120\n}"
+            },
+            "url": "{{baseUrl}}/inventory/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enquiries",
+      "item": [
+        {
+          "name": "Get Enquiries",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/enquiries"
+          }
+        },
+        {
+          "name": "Get Enquiry By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/enquiries/1"
+          }
+        },
+        {
+          "name": "Create Enquiry",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"required_date\": \"2026-10-30\",\n  \"notes\": \"Urgent machinery spare requirement\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 10\n    },\n    {\n      \"product_id\": 2,\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/enquiries"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quotations",
+      "item": [
+        {
+          "name": "Get Quotations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/quotations"
+          }
+        },
+        {
+          "name": "Get Quotation By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/quotations/1"
+          }
+        },
+        {
+          "name": "Preview Quotation Calculations",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 10,\n      \"unit_price\": 1250,\n      \"discount_pct\": 5,\n      \"gst_pct\": 18\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/quotations/calculate"
+          }
+        },
+        {
+          "name": "Create Quotation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enquiry_id\": 1,\n  \"valid_until\": \"2026-11-15\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 10,\n      \"unit_price\": 1250,\n      \"discount_pct\": 5,\n      \"gst_pct\": 18\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/quotations"
+          }
+        },
+        {
+          "name": "Update Quotation Status (Accept/Reject)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACCEPTED\"\n}"
+            },
+            "url": "{{baseUrl}}/quotations/1/status"
+          }
+        },
+        {
+          "name": "Convert Accepted Quotation to Sales Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/quotations/1/convert"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sales Orders & Fulfillment",
+      "item": [
+        {
+          "name": "Get Sales Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/sales-orders"
+          }
+        },
+        {
+          "name": "Get Sales Order By ID (with Stock Availability)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/sales-orders/1"
+          }
+        },
+        {
+          "name": "Confirm Order - Reserve Inventory (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/sales-orders/1/confirm"
+          }
+        },
+        {
+          "name": "Dispatch Order (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicle_number\": \"MH-12-AB-4567\",\n  \"driver_name\": \"Ramesh Jadhav\"\n}"
+            },
+            "url": "{{baseUrl}}/sales-orders/1/dispatch"
+          }
+        }
+      ]
+    }
+  ]
+}
