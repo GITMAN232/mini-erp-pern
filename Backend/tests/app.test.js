@@ -398,3 +398,129 @@ test('Test 5: Unauthorized user (SALES role) cannot perform restricted operation
   });
   assert.equal(dispatchRes.status, 403);
 });
+
+// ====================================================================
+// BONUS TEST 6: Concurrency handling for simultaneous inventory reservations
+// ====================================================================
+test('Test 6 (Bonus): Simultaneous reservations cannot oversell available stock', async () => {
+  // 1. Create a special product with exactly 100 physical stock
+  const code = 'CONCURR-' + Date.now();
+  const prodRes = await fetch(`${BASE_URL}/products`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${adminToken}`
+    },
+    body: JSON.stringify({
+      product_code: code,
+      product_name: 'Concurrency Test Motor',
+      category: 'Motors',
+      unit: 'Unit',
+      base_price: 5000,
+      initial_stock: 100
+    })
+  });
+  const product = await prodRes.json();
+
+  const custRes = await fetch(`${BASE_URL}/customers`, {
+    headers: { 'Authorization': `Bearer ${salesToken}` }
+  });
+  const customers = await custRes.json();
+  const customerId = customers[0].id;
+
+  // 2. Create Quotation A for 80 units
+  const enqARes = await fetch(`${BASE_URL}/enquiries`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${salesToken}` },
+    body: JSON.stringify({
+      customer_id: customerId,
+      required_date: '2026-11-01',
+      items: [{ product_id: product.id, quantity: 80 }]
+    })
+  });
+  const enqA = await enqARes.json();
+
+  const quotARes = await fetch(`${BASE_URL}/quotations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${salesToken}` },
+    body: JSON.stringify({
+      enquiry_id: enqA.id,
+      valid_until: '2026-12-01',
+      items: [{ product_id: product.id, quantity: 80, unit_price: 5000 }]
+    })
+  });
+  const quotA = await quotARes.json();
+  await fetch(`${BASE_URL}/quotations/${quotA.id}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${salesToken}` },
+    body: JSON.stringify({ status: 'ACCEPTED' })
+  });
+  const orderARes = await fetch(`${BASE_URL}/quotations/${quotA.id}/convert`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${salesToken}` }
+  });
+  const orderA = await orderARes.json();
+
+  // 3. Create Quotation B for 50 units
+  const enqBRes = await fetch(`${BASE_URL}/enquiries`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${salesToken}` },
+    body: JSON.stringify({
+      customer_id: customerId,
+      required_date: '2026-11-01',
+      items: [{ product_id: product.id, quantity: 50 }]
+    })
+  });
+  const enqB = await enqBRes.json();
+
+  const quotBRes = await fetch(`${BASE_URL}/quotations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${salesToken}` },
+    body: JSON.stringify({
+      enquiry_id: enqB.id,
+      valid_until: '2026-12-01',
+      items: [{ product_id: product.id, quantity: 50, unit_price: 5000 }]
+    })
+  });
+  const quotB = await quotBRes.json();
+  await fetch(`${BASE_URL}/quotations/${quotB.id}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${salesToken}` },
+    body: JSON.stringify({ status: 'ACCEPTED' })
+  });
+  const orderBRes = await fetch(`${BASE_URL}/quotations/${quotB.id}/convert`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${salesToken}` }
+  });
+  const orderB = await orderBRes.json();
+
+  // 4. Trigger simultaneous confirmation requests (Request A needs 80, Request B needs 50, Total available is only 100)
+  const [resA, resB] = await Promise.all([
+    fetch(`${BASE_URL}/sales-orders/${orderA.order.id}/confirm`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    }),
+    fetch(`${BASE_URL}/sales-orders/${orderB.order.id}/confirm`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    })
+  ]);
+
+  const statuses = [resA.status, resB.status];
+  // Exactly one must succeed (200) and one must fail (400)
+  assert.ok(statuses.includes(200), 'One request must succeed');
+  assert.ok(statuses.includes(400), 'The competing request must fail safely');
+
+  // 5. Verify database stock state
+  const invRes = await fetch(`${BASE_URL}/inventory`, {
+    headers: { 'Authorization': `Bearer ${salesToken}` }
+  });
+  const list = await invRes.json();
+  const currentStock = list.find(i => i.product_id === product.id);
+
+  // Reserved quantity must either be 80 or 50, NEVER 130!
+  assert.ok(currentStock.reserved_quantity === 80 || currentStock.reserved_quantity === 50);
+  assert.ok(currentStock.reserved_quantity <= currentStock.physical_quantity);
+  assert.ok(currentStock.available_quantity >= 0);
+});
+
