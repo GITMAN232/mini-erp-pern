@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const rawBase = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const BASE_URL = rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`;
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('mini_erp_token');
