@@ -239,12 +239,14 @@ export default function SalesOrdersPage({ user, selectedOrderId }) {
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.product_name}</div>
                       </td>
                       <td><strong>{item.quantity} {item.unit}</strong></td>
-                      <td>₹{Number(item.unit_price).toFixed(2)}</td>
-                      <td>₹{Number(item.line_amount).toFixed(2)}</td>
-                      <td>{item.physical_quantity}</td>
-                      <td>{item.reserved_quantity}</td>
-                      <td>
-                        <strong>{item.available_quantity}</strong>
+                      <td className="numeric-cell">₹{Number(item.unit_price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                      <td className="numeric-cell">₹{Number(item.line_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                      <td className="numeric-cell">{item.physical_quantity}</td>
+                      <td className="numeric-cell" style={{ color: '#b45309' }}>{item.reserved_quantity}</td>
+                      <td className="numeric-cell">
+                        <strong style={{ color: item.available_quantity > 0 ? '#15803d' : '#dc2626' }}>
+                          {item.available_quantity}
+                        </strong>
                       </td>
                       <td>
                         {item.has_sufficient_stock ? (

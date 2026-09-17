@@ -472,3 +472,90 @@ tr:hover td {
   color: #dc2626;
   font-weight: 600;
 }
+
+/* HIGH-VISIBILITY TABLE INPUTS */
+.table-input {
+  width: 100%;
+  padding: 0.5rem 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.15s ease;
+}
+
+.table-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+select.table-input {
+  padding: 0.5rem 0.4rem;
+  cursor: pointer;
+  background-color: #f8fafc;
+}
+
+select.table-input option {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.numeric-cell {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.925rem;
+  font-weight: 600;
+}
+
+/* HIGH-CONTRAST QUOTATION SUMMARY BAR */
+.quotation-summary-bar {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  align-items: center;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.summary-label {
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.summary-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.discount-val {
+  color: #b45309;
+}
+
+.gst-val {
+  color: #2563eb;
+}
+
+.grand-total-val {
+  color: #15803d;
+  font-size: 1.25rem;
+  font-weight: 800;
+}

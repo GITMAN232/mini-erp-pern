@@ -204,17 +204,19 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
                     <td><strong>{q.quotation_number}</strong></td>
                     <td>{q.enquiry_number}</td>
                     <td>{q.company_name}</td>
-                    <td>₹{Number(q.subtotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                    <td style={{ color: '#b45309' }}>
+                    <td className="numeric-cell">₹{Number(q.subtotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td className="numeric-cell" style={{ color: '#b45309' }}>
                       -₹{Number(q.discount_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </td>
-                    <td>+₹{Number(q.gst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                    <td>
+                    <td className="numeric-cell" style={{ color: '#2563eb' }}>
+                      +₹{Number(q.gst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="numeric-cell">
                       <strong style={{ color: '#15803d' }}>
                         ₹{Number(q.grand_total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </strong>
                     </td>
-                    <td>{q.valid_until ? new Date(q.valid_until).toLocaleDateString() : '-'}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{q.valid_until ? new Date(q.valid_until).toLocaleDateString() : '-'}</td>
                     <td>
                       <span className={`status-pill status-${q.status.toLowerCase()}`}>
                         {q.status}
@@ -278,7 +280,7 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
       {/* MODAL: CREATE QUOTATION */}
       {showCreateModal && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '750px' }}>
+          <div className="modal-content" style={{ maxWidth: '880px' }}>
             <div className="modal-header">
               <h3 className="modal-title">Create Quotation</h3>
               <button className="btn-close" onClick={() => setShowCreateModal(false)}>×</button>
@@ -325,12 +327,12 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
                   <table>
                     <thead>
                       <tr>
-                        <th>Product</th>
-                        <th style={{ width: '80px' }}>Qty</th>
-                        <th style={{ width: '110px' }}>Unit Price (₹)</th>
-                        <th style={{ width: '80px' }}>Disc %</th>
-                        <th style={{ width: '80px' }}>GST %</th>
-                        <th>Line Total (₹)</th>
+                        <th style={{ minWidth: '180px' }}>Product</th>
+                        <th style={{ width: '95px' }}>Qty</th>
+                        <th style={{ width: '135px' }}>Unit Price (₹)</th>
+                        <th style={{ width: '95px' }}>Disc %</th>
+                        <th style={{ width: '115px' }}>GST %</th>
+                        <th style={{ width: '140px', textAlign: 'right' }}>Line Total (₹)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -347,7 +349,7 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
                             <td>
                               <input
                                 type="number"
-                                className="form-control"
+                                className="table-input"
                                 min="1"
                                 value={item.quantity}
                                 onChange={(e) => handleItemFieldChange(idx, 'quantity', e.target.value)}
@@ -357,7 +359,7 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
                             <td>
                               <input
                                 type="number"
-                                className="form-control"
+                                className="table-input"
                                 step="0.01"
                                 min="0"
                                 value={item.unit_price}
@@ -368,7 +370,7 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
                             <td>
                               <input
                                 type="number"
-                                className="form-control"
+                                className="table-input"
                                 min="0"
                                 max="100"
                                 value={item.discount_pct}
@@ -377,7 +379,7 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
                             </td>
                             <td>
                               <select
-                                className="form-control"
+                                className="table-input"
                                 value={item.gst_pct}
                                 onChange={(e) => handleItemFieldChange(idx, 'gst_pct', e.target.value)}
                               >
@@ -388,9 +390,9 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
                                 <option value="28">28%</option>
                               </select>
                             </td>
-                            <td>
-                              <strong>
-                                ₹{linePreview ? linePreview.line_amount.toFixed(2) : '-'}
+                            <td style={{ textAlign: 'right' }}>
+                              <strong className="numeric-cell" style={{ fontSize: '1rem', color: '#0f172a' }}>
+                                ₹{linePreview ? Number(linePreview.line_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '-'}
                               </strong>
                             </td>
                           </tr>
@@ -403,33 +405,30 @@ export default function QuotationsPage({ preselectedEnquiryId, onOrderCreated })
 
               {/* Financial Breakdown Summary (Backend Preview) */}
               {calculatedPreview && (
-                <div style={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '6px',
-                  marginBottom: '1rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '0.875rem'
-                }}>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)' }}>Subtotal: </span>
-                    <strong>₹{calculatedPreview.subtotal.toFixed(2)}</strong>
+                <div className="quotation-summary-bar">
+                  <div className="summary-item">
+                    <span className="summary-label">Subtotal</span>
+                    <span className="summary-value">
+                      ₹{Number(calculatedPreview.subtotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
                   </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)' }}>Total Discount: </span>
-                    <strong style={{ color: '#b45309' }}>-₹{calculatedPreview.discount_amount.toFixed(2)}</strong>
+                  <div className="summary-item">
+                    <span className="summary-label">Total Discount</span>
+                    <span className="summary-value discount-val">
+                      -₹{Number(calculatedPreview.discount_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
                   </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)' }}>GST Amount: </span>
-                    <strong>+₹{calculatedPreview.gst_amount.toFixed(2)}</strong>
+                  <div className="summary-item">
+                    <span className="summary-label">GST Tax</span>
+                    <span className="summary-value gst-val">
+                      +₹{Number(calculatedPreview.gst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
                   </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)' }}>Grand Total: </span>
-                    <strong style={{ color: '#15803d', fontSize: '1rem' }}>
-                      ₹{calculatedPreview.grand_total.toFixed(2)}
-                    </strong>
+                  <div className="summary-item grand-total-item">
+                    <span className="summary-label">Grand Total</span>
+                    <span className="summary-value grand-total-val">
+                      ₹{Number(calculatedPreview.grand_total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
                   </div>
                 </div>
               )}
